@@ -6,6 +6,7 @@ const {
   findMovie,
   findCredits,
 } = require("../services/movie.service.js");
+const apiKeyMiddleware = require("../middleware/apiKeyValidation.js");
 
 const router = Router();
 
@@ -85,7 +86,7 @@ const router = Router();
  *                type: integer
  *
  */
-router.get("/", async (req, res) => {
+router.get("/", apiKeyMiddleware, async (req, res) => {
   try {
     let data = [];
 
@@ -250,7 +251,7 @@ router.get("/", async (req, res) => {
  *                    job:
  *                      type: string
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", apiKeyMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
     const movie = await findMovie(id);
