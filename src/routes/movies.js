@@ -85,19 +85,31 @@ const router = Router();
  *                type: integer
  *
  */
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   try {
-    const { query, year, minRating, maxRating, page } = req.query;
-    const movies = await searchMoviesByQuery(
-      query,
-      year,
-      minRating,
-      maxRating,
-      page
+    let data = [];
+
+    if (req.query?.query) {
+      data = await searchMoviesByQuery(
+        req.query.query,
+        req.query.year,
+        req.query.page || 1
+      );
+
+      res.send(data);
+      return;
+    }
+
+    data = await searchMovies(
+      req.query?.year,
+      req.query?.minRating || 0,
+      req.query?.maxRating || 10,
+      req.query?.page || 1
     );
-    res.json(movies);
+
+    res.send(data);
   } catch (error) {
-    next(error);
+    res.status(500).json(error);
   }
 });
 
@@ -244,6 +256,7 @@ router.get("/:id", async (req, res, next) => {
     const movie = await findMovie(id);
     const credits = await findCredits(id);
     const movieDetails = { ...movie, credits };
+
     res.json(movieDetails);
   } catch (error) {
     next(error);
